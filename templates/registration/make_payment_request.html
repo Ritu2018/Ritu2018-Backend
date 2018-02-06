@@ -1,0 +1,10 @@
+
+<script>
+    window.onload = function ()  {
+        //var form = document.forms('payment').submit();
+    }
+</script>
+<form method="post" action="{{ url }}" name="payment">
+    {{ form.as_table }}
+    <input type="submit">
+</form>
