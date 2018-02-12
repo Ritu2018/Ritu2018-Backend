@@ -5,8 +5,8 @@ from django.views.generic import TemplateView
 from ritu18.apps.registration.views import PaymentRequestAccept, payment_sucess, registration_details
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='registration/payment.html'), name='index'),
     path('pay', PaymentRequestAccept.as_view(), name='pay'),
     path('pay/response', payment_sucess, name='paymentResponse'),
-    path('get/registration', registration_details, name='getRegistrationDetails' )
+    path('get/registration', registration_details, name='getRegistrationDetails' ),
+    path('<path>', TemplateView.as_view(template_name='registration/index.html'), name='index'),
 ]

@@ -16,9 +16,6 @@ from ritu18.apps.event_details import event_details, AMOUNT
 
 class PaymentRequestAccept(View):
     def post(self, request):
-        if RegistrationModel.objects.filter(email=request.POST['phone'],
-                                            event_code=request.POST['product_info']).exists():
-            return JsonResponse({'status':'Already Registered'}) # TODO change to refirect URL
         try:
             if request.POST['product_info'] not in event_details:
                 return JsonResponse({'status': 'Invalid Event Code'})
@@ -28,6 +25,15 @@ class PaymentRequestAccept(View):
                                            product_info=request.POST['product_info'],
                                            name=request.POST['name'])
             transaction.save()
+            try:
+                registration = RegistrationModel.create_registration(name=transaction.name,
+                                                                     phone=transaction.phone,
+                                                                     email=transaction.email,
+                                                                     transaction=transaction)  # type: RegistrationModel
+            except RegistrationModel.RepeatedRegistrationException:
+                transaction.status = TransactionModel.TransactionStatus.REPEATED_REGISTRATION
+                transaction.save()
+                return JsonResponse({'status': 'fail'})
             hashSequence = "key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5|udf6|udf7|udf8|udf9|udf10"
             data = {
                 'key': MERCHANT_KEY,
@@ -80,32 +86,23 @@ def payment_sucess(request):
     status = request.POST['status']
     if status == 'success':
         if productinfo not in event_details:
-            transaction.status = TransactionModel.PaymentStatus.INVALID_EVENT_CODE
+            transaction.status = TransactionModel.TransactionStatus.INVALID_EVENT_CODE
         elif Decimal(amount) != Decimal(event_details[productinfo][AMOUNT]):
             print(amount)
             print(event_details[productinfo][AMOUNT])
-            transaction.status = TransactionModel.PaymentStatus.INCORRECT_AMOUNT
+            transaction.status = TransactionModel.TransactionStatus.INCORRECT_AMOUNT
         else:
-            transaction.status = TransactionModel.PaymentStatus.SUCCESS
+            transaction.status = TransactionModel.TransactionStatus.SUCCESS
     else:
-        transaction.status = TransactionModel.PaymentStatus.FAILURE
+        transaction.status = TransactionModel.TransactionStatus.FAILURE
 
     transaction.payment_id = request.POST['payuMoneyId']
     transaction.save()
-
-    if transaction.status == TransactionModel.PaymentStatus.SUCCESS:
-        registration = RegistrationModel()
-        registration.transaction = transaction
-        registration.phone = transaction.phone
-        registration.email = email
-        registration.event_code = productinfo
-        registration.save()
-
-    return JsonResponse({'status': TransactionModel.PaymentStatus.STATUS_DESCRIPTION[transaction.status]}) #TODO change to Redirect URL
+    return JsonResponse({'status': TransactionModel.TransactionStatus.STATUS_DESCRIPTION[transaction.status]}) #TODO change to Redirect URL
 
 
 def registration_details(request):
-    data = request.GET.get('data', "") #type:str
+    data = request.GET.get('data', "")  # type:str
     rlist = None
 
     if '@' in data:
