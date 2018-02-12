@@ -8,5 +8,5 @@ urlpatterns = [
     path('pay', PaymentRequestAccept.as_view(), name='pay'),
     path('pay/response', payment_sucess, name='paymentResponse'),
     path('get/registration', registration_details, name='getRegistrationDetails' ),
-    path('<path>', TemplateView.as_view(template_name='registration/index.html'), name='index'),
+    path('', TemplateView.as_view(template_name='registration/index.html'), name='index'),
 ]
