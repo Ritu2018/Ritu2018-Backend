@@ -24,7 +24,7 @@ SECRET_KEY = '+!ja!9hcy&j(kb1e*ub5yj@mnme8(+*mg4yvp+lazkzg_eekgj'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['test.ritu18.com','18.216.233.86']
 
 # Application definition
 
@@ -114,7 +114,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'),)
 
 CSRF_COOKIE_SECURE = False
