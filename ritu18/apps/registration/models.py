@@ -36,7 +36,8 @@ class TransactionModel(models.Model):
 
     def __str__(self):
         return str(self.id) + " : " + self.phone + " : " + self.product_info + " |amount: " + str(self.amount) \
-               + " |status: " +self.TransactionStatus.STATUS_DESCRIPTION[self.status] + " |payment ID: " + self.payment_id
+               + " |status: " +self.TransactionStatus.STATUS_DESCRIPTION[self.status] + " |payment ID: " \
+               + self.payment_id if self.payment_id is not None else "NaN"
 
 
 class RegistrationModel(models.Model):
