@@ -34,9 +34,13 @@ class TransactionModel(models.Model):
 
     payment_id = models.CharField(max_length=50, null=True)
 
+    @property
+    def Status(self):
+        return TransactionModel.TransactionStatus.STATUS_DESCRIPTION[self.status]
+
     def __str__(self):
         return str(self.id) + " : " + self.phone + " : " + self.product_info + " |amount: " + str(self.amount) \
-               + " |status: " +self.TransactionStatus.STATUS_DESCRIPTION[self.status] + " |payment ID: " \
+               + " |status: " +self.Status + " |payment ID: " \
                + str(self.payment_id if self.payment_id is not None else "NaN")
 
 
