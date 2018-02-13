@@ -4,6 +4,7 @@ from decimal import Decimal
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 from django.views import View
@@ -15,25 +16,22 @@ from ritu18.apps.event_details import event_details, AMOUNT
 
 
 class PaymentRequestAccept(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(PaymentRequestAccept, self).dispatch(request, *args, **kwargs)
+
     def post(self, request):
         try:
             if request.POST['product_info'] not in event_details:
-                return JsonResponse({'status': 'Invalid Event Code'})
+                return JsonResponse({'status': 'Invalid Event Code'}) #TODO change
             transaction = TransactionModel(phone=request.POST['phone'],
                                            email=request.POST['email'],
                                            amount=event_details[request.POST['product_info']]['amount'],
                                            product_info=request.POST['product_info'],
                                            name=request.POST['name'])
             transaction.save()
-            try:
-                registration = RegistrationModel.create_registration(name=transaction.name,
-                                                                     phone=transaction.phone,
-                                                                     email=transaction.email,
-                                                                     transaction=transaction)  # type: RegistrationModel
-            except RegistrationModel.RepeatedRegistrationException:
-                transaction.status = TransactionModel.TransactionStatus.REPEATED_REGISTRATION
-                transaction.save()
-                return JsonResponse({'status': 'fail'})
+
             hashSequence = "key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5|udf6|udf7|udf8|udf9|udf10"
             data = {
                 'key': MERCHANT_KEY,
@@ -80,7 +78,7 @@ def payment_sucess(request):
     hash = hashlib.sha512(retHashSeq.encode()).hexdigest().lower()
 
     if posted_hash != hash:
-        return JsonResponse({'status': 'invalid'})
+        return JsonResponse({'status': 'invalid'}) # TODO change
 
     transaction = TransactionModel.objects.get(id=txnid)
     status = request.POST['status']
@@ -88,8 +86,6 @@ def payment_sucess(request):
         if productinfo not in event_details:
             transaction.status = TransactionModel.TransactionStatus.INVALID_EVENT_CODE
         elif Decimal(amount) != Decimal(event_details[productinfo][AMOUNT]):
-            print(amount)
-            print(event_details[productinfo][AMOUNT])
             transaction.status = TransactionModel.TransactionStatus.INCORRECT_AMOUNT
         else:
             transaction.status = TransactionModel.TransactionStatus.SUCCESS
@@ -98,6 +94,17 @@ def payment_sucess(request):
 
     transaction.payment_id = request.POST['payuMoneyId']
     transaction.save()
+
+    if transaction.status == TransactionModel.TransactionStatus.SUCCESS:
+        try:
+            registration = RegistrationModel.create_registration(name=transaction.name,
+                                                                 phone=transaction.phone,
+                                                                 email=transaction.email,
+                                                                 transaction=transaction)  # type: RegistrationModel
+        except RegistrationModel.RepeatedRegistrationException:
+            transaction.status = TransactionModel.TransactionStatus.REPEATED_REGISTRATION
+            transaction.save()
+            return JsonResponse({'status': 'fail'}) # TODO change
     return JsonResponse({'status': TransactionModel.TransactionStatus.STATUS_DESCRIPTION[transaction.status]}) #TODO change to Redirect URL
 
 

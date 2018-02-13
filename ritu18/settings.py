@@ -24,7 +24,7 @@ SECRET_KEY = '+!ja!9hcy&j(kb1e*ub5yj@mnme8(+*mg4yvp+lazkzg_eekgj'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['test.ritu18.com','18.216.233.86']
+ALLOWED_HOSTS = ['test.ritu18.com','18.216.233.86', '127.0.0.1']
 
 # Application definition
 
