@@ -22,6 +22,10 @@ class PaymentRequestAccept(View):
         return super(PaymentRequestAccept, self).dispatch(request, *args, **kwargs)
 
     def post(self, request):
+        phone = request.POST['phone']
+        product_info = request.POST['product_info']
+        if RegistrationModel.objects.filter(profile__phone=phone, event_code=product_info).exists():
+            return JsonResponse({'status':'Repeated Registration'}) #TODO change
         try:
             if request.POST['product_info'] not in event_details:
                 return JsonResponse({'status': 'Invalid Event Code'}) #TODO change
@@ -31,11 +35,13 @@ class PaymentRequestAccept(View):
                                            product_info=request.POST['product_info'],
                                            name=request.POST['name'])
             transaction.save()
+            transaction.transaction_id = 'TEST00' + str(transaction.id)
+            transaction.save()
 
             hashSequence = "key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5|udf6|udf7|udf8|udf9|udf10"
             data = {
                 'key': MERCHANT_KEY,
-                'txnid': transaction.id,
+                'txnid': transaction.transaction_id,
                 'amount': transaction.amount,
                 'productinfo': transaction.product_info,
                 'firstname': transaction.name,

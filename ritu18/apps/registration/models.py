@@ -26,6 +26,7 @@ class TransactionModel(models.Model):
         }
 
     name = models.CharField(max_length=255)
+    transaction_id = models.CharField(max_length=255, null=True)
     phone = models.CharField(max_length=14)
     email = models.EmailField()
     product_info = models.CharField(max_length=200)
@@ -34,12 +35,15 @@ class TransactionModel(models.Model):
 
     payment_id = models.CharField(max_length=50, null=True)
 
+    class Meta:
+        unique_together = (('phone', 'product_info'),)
+
     @property
     def Status(self):
         return TransactionModel.TransactionStatus.STATUS_DESCRIPTION[self.status]
 
     def __str__(self):
-        return str(self.id) + " : " + self.phone + " : " + self.product_info + " |amount: " + str(self.amount) \
+        return str(self.transaction_id) + " : " + self.phone + " : " + self.product_info + " |amount: " + str(self.amount) \
                + " |status: " +self.Status + " |payment ID: " \
                + str(self.payment_id if self.payment_id is not None else "NaN")
 
