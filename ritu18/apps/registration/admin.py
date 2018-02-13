@@ -9,7 +9,9 @@ class RegistrationAdmin(admin.StackedInline):
 
 @admin.register(TransactionModel)
 class TransactionAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['product_info', 'phone']
+    list_filter = ['product_info', 'phone']
+
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
