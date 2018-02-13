@@ -35,7 +35,8 @@ class TransactionModel(models.Model):
     payment_id = models.CharField(max_length=50, null=True)
 
     def __str__(self):
-        return self.name + " : " + self.phone + " : " + self.product_info + " : " + str(self.amount)
+        return self.name + " : " + self.phone + " : " + self.product_info + "|amount: " + str(self.amount) \
+               + "|status:" +self.TransactionStatus.STATUS_DESCRIPTION[self.status]
 
 
 class RegistrationModel(models.Model):
