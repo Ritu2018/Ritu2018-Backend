@@ -34,6 +34,9 @@ class TransactionModel(models.Model):
 
     payment_id = models.CharField(max_length=50, null=True)
 
+    def __str__(self):
+        return self.name + " : " + self.phone + " : " + self.product_info + " : " + str(self.amount)
+
 
 class RegistrationModel(models.Model):
     event_code = models.CharField(max_length=10)
@@ -41,6 +44,9 @@ class RegistrationModel(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
 
     transaction = models.OneToOneField(TransactionModel, on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return self.event_code
 
     class Meta:
         unique_together = (('profile', 'event_code'),)

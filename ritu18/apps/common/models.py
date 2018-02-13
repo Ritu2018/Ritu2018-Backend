@@ -8,3 +8,6 @@ class Profile(models.Model):
     phone = models.CharField(max_length=14, unique=True)
     email = models.EmailField()
     college = models.CharField(max_length=900, null=True)
+
+    def __str__(self):
+        return self.name + " : " + self.phone
